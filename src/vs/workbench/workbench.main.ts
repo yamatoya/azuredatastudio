@@ -446,6 +446,9 @@ import 'sql/parts/dataExplorer/viewlet/dataExplorerViewlet';
 import 'sql/parts/dataExplorer/common/dataExplorerExtensionPoint';
 import 'sql/workbench/parts/dataExplorer/electron-browser/nodeActions.contribution';
 
+// tasks
+import 'sql/workbench/parts/tasks/browser/tasks.contribution';
+
 import 'sql/parts/objectExplorer/common/registeredServer.contribution';
 import 'sql/workbench/parts/connection/electron-browser/connectionViewlet';
 import 'sql/workbench/api/node/sqlExtHost.contribution';
