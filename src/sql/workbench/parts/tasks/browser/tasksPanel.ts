@@ -14,9 +14,9 @@ import { WorkbenchObjectTree } from 'vs/platform/list/browser/listService';
 import { TreeElement, FilterData, VirtualDelegate, StepRenderer, TaskRenderer } from 'sql/workbench/parts/tasks/browser/tasksTreeViewer';
 import * as dom from 'vs/base/browser/dom';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
-
-export const TASKS_PANEL_ID = 'workbench.panel.tasks';
-export const TASKS_PANEL_TITLE = localize('tasks.panel.title', "Tasks");
+import { KeyCode } from 'vs/base/common/keyCodes';
+import Messages from 'sql/workbench/parts/tasks/common/messages';
+import Constants from 'sql/workbench/parts/tasks/common/constants';
 
 export class TasksPanel extends Panel {
 
@@ -32,7 +32,7 @@ export class TasksPanel extends Panel {
 		@IStorageService storageService: IStorageService,
 		@IInstantiationService private instantiationService: IInstantiationService
 	) {
-		super(TASKS_PANEL_ID, telemetryService, themeService, storageService);
+		super(Constants.TASKS_PANEL_ID, telemetryService, themeService, storageService);
 	}
 
 	public create(parent: HTMLElement): void {
@@ -45,6 +45,8 @@ export class TasksPanel extends Panel {
 		this.createArialLabelElement(container);
 		this.createMessageBox(container);
 		this.createTree(container);
+
+		this.render();
 	}
 
 	public layout(dimension: dom.Dimension): void {
@@ -78,5 +80,88 @@ export class TasksPanel extends Panel {
 		this.ariaLabelElement = dom.append(parent, dom.$(''));
 		this.ariaLabelElement.setAttribute('id', 'tasks-panel-arialabel');
 		this.ariaLabelElement.setAttribute('aria-live', 'polite');
+	}
+
+	private render(): void {
+		// this.cachedFilterStats = undefined;
+		// this.tree.setChildren(null, createModelIterator(this.markersWorkbenchService.markersModel));
+		const { total, filtered } = this.getFilterStats();
+		dom.toggleClass(this.treeContainer, 'hidden', total === 0 || filtered === 0);
+		this.renderMessage();
+	}
+
+	private renderMessage(): void {
+		dom.clearNode(this.messageBoxContainer);
+		const { total, filtered } = this.getFilterStats();
+
+		if (filtered === 0) {
+			this.messageBoxContainer.style.display = 'block';
+			this.messageBoxContainer.setAttribute('tabIndex', '0');
+			if (total > 0) {
+				// if (this.filter.options.filter) {
+				// 	this.renderFilteredByFilterMessage(this.messageBoxContainer);
+				// } else {
+				// 	this.renderFilteredByFilesExcludeMessage(this.messageBoxContainer);
+				// }
+			} else {
+				this.renderNoProblemsMessage(this.messageBoxContainer);
+			}
+		} else {
+			this.messageBoxContainer.style.display = 'none';
+			if (filtered === total) {
+				this.ariaLabelElement.setAttribute('aria-label', localize('No problems filtered', "Showing {0} problems", total));
+			} else {
+				this.ariaLabelElement.setAttribute('aria-label', localize('problems filtered', "Showing {0} of {1} problems", filtered, total));
+			}
+			this.messageBoxContainer.removeAttribute('tabIndex');
+		}
+	}
+
+	/*
+	private renderFilteredByFilesExcludeMessage(container: HTMLElement) {
+		const span1 = dom.append(container, dom.$('span'));
+		span1.textContent = Messages.MARKERS_PANEL_NO_PROBLEMS_FILE_EXCLUSIONS_FILTER;
+		const link = dom.append(container, dom.$('a.messageAction'));
+		link.textContent = localize('disableFilesExclude', "Disable Files Exclude Filter.");
+		link.setAttribute('tabIndex', '0');
+		dom.addStandardDisposableListener(link, dom.EventType.CLICK, () => this.filterAction.useFilesExclude = false);
+		dom.addStandardDisposableListener(link, dom.EventType.KEY_DOWN, (e: IKeyboardEvent) => {
+			if (e.equals(KeyCode.Enter) || e.equals(KeyCode.Space)) {
+				this.filterAction.useFilesExclude = false;
+				e.stopPropagation();
+			}
+		});
+		this.ariaLabelElement.setAttribute('aria-label', Messages.MARKERS_PANEL_NO_PROBLEMS_FILE_EXCLUSIONS_FILTER);
+	}
+
+	private renderFilteredByFilterMessage(container: HTMLElement) {
+		const span1 = dom.append(container, dom.$('span'));
+		span1.textContent = Messages.MARKERS_PANEL_NO_PROBLEMS_FILTERS;
+		const link = dom.append(container, dom.$('a.messageAction'));
+		link.textContent = localize('clearFilter', "Clear Filter.");
+		link.setAttribute('tabIndex', '0');
+		dom.addStandardDisposableListener(link, dom.EventType.CLICK, () => this.filterAction.filterText = '');
+		dom.addStandardDisposableListener(link, dom.EventType.KEY_DOWN, (e: IKeyboardEvent) => {
+			if (e.equals(KeyCode.Enter) || e.equals(KeyCode.Space)) {
+				this.filterAction.filterText = '';
+				e.stopPropagation();
+			}
+		});
+		this.ariaLabelElement.setAttribute('aria-label', Messages.MARKERS_PANEL_NO_PROBLEMS_FILTERS);
+	}
+	*/
+
+	private renderNoProblemsMessage(container: HTMLElement) {
+		const span = dom.append(container, dom.$('span'));
+		span.textContent = Messages.TASKS_PANEL_NO_PROBLEMS_BUILT;
+		this.ariaLabelElement.setAttribute('aria-label', Messages.TASKS_PANEL_NO_PROBLEMS_BUILT);
+	}
+
+	getFilterStats(): { total: number; filtered: number; } {
+		// if (!this.cachedFilterStats) {
+		// 	this.cachedFilterStats = this.computeFilterStats();
+		// }
+
+		return { total: 0, filtered: 0 };
 	}
 }

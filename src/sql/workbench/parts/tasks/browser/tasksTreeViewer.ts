@@ -64,15 +64,13 @@ export class TaskRenderer implements ITreeRenderer<Task, undefined, ITaskTemplat
 	templateId = TemplateId.Task;
 
 	renderTemplate(container: HTMLElement): ITaskTemplateData {
-		throw new Error('Method not implemented.');
+		return {};
 	}
 
 	renderElement(element: ITreeNode<Task, undefined>, index: number, templateData: ITaskTemplateData): void {
-		throw new Error('Method not implemented.');
 	}
 
 	disposeTemplate(templateData: ITaskTemplateData): void {
-		throw new Error('Method not implemented.');
 	}
 }
 
@@ -80,15 +78,13 @@ export class StepRenderer implements ITreeRenderer<Step, undefined, IStepTemplat
 	templateId = TemplateId.Step;
 
 	renderTemplate(container: HTMLElement): IStepTemplateData {
-		throw new Error('Method not implemented.');
+		return {};
 	}
 
 	renderElement(element: ITreeNode<Step, undefined>, index: number, templateData: IStepTemplateData): void {
-		throw new Error('Method not implemented.');
 	}
 
 	disposeTemplate(templateData: IStepTemplateData): void {
-		throw new Error('Method not implemented.');
 	}
 }
 

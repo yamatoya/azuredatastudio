@@ -5,12 +5,14 @@
 
 import { PanelRegistry, Extensions as PanelExtensions, PanelDescriptor } from 'vs/workbench/browser/panel';
 import { Registry } from 'vs/platform/registry/common/platform';
-import { TasksPanel, TASKS_PANEL_ID, TASKS_PANEL_TITLE } from 'sql/workbench/parts/tasks/browser/tasksPanel';
+import { TasksPanel } from 'sql/workbench/parts/tasks/browser/tasksPanel';
+import Messages from 'sql/workbench/parts/tasks/common/messages';
+import Constants from 'sql/workbench/parts/tasks/common/constants';
 
 // markers panel
 Registry.as<PanelRegistry>(PanelExtensions.Panels).registerPanel(new PanelDescriptor(
 	TasksPanel,
-	TASKS_PANEL_ID,
-	TASKS_PANEL_TITLE,
+	Constants.TASKS_PANEL_ID,
+	Messages.MARKERS_PANEL_TITLE_PROBLEMS,
 	'tasksPanel'
 ));
