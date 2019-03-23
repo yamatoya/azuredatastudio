@@ -17,6 +17,18 @@ import { IInstantiationService } from 'vs/platform/instantiation/common/instanti
 import { KeyCode } from 'vs/base/common/keyCodes';
 import Messages from 'sql/workbench/parts/tasks/common/messages';
 import Constants from 'sql/workbench/parts/tasks/common/constants';
+import { ITaskService2 } from 'sql/platform/tasks/common/tasksService2';
+import { Iterator } from 'vs/base/common/iterator';
+import { ITreeElement } from 'vs/base/browser/ui/tree/tree';
+import { Task, Step } from 'sql/workbench/parts/tasks/common/tasksModel';
+
+function createModelIterator(model: Array<Task>): Iterator<ITreeElement<TreeElement>> {
+	const tasksIt = Iterator.fromArray(model);
+
+	return Iterator.map(tasksIt, m => {
+		return { element: m };
+	});
+}
 
 export class TasksPanel extends Panel {
 
@@ -30,7 +42,8 @@ export class TasksPanel extends Panel {
 		@ITelemetryService telemetryService: ITelemetryService,
 		@IThemeService themeService: IThemeService,
 		@IStorageService storageService: IStorageService,
-		@IInstantiationService private instantiationService: IInstantiationService
+		@IInstantiationService private instantiationService: IInstantiationService,
+		@ITaskService2 private taskService: ITaskService2
 	) {
 		super(Constants.TASKS_PANEL_ID, telemetryService, themeService, storageService);
 	}
@@ -45,12 +58,28 @@ export class TasksPanel extends Panel {
 		this.createArialLabelElement(container);
 		this.createMessageBox(container);
 		this.createTree(container);
+		this.createListeners();
 
 		this.render();
 	}
 
 	public layout(dimension: dom.Dimension): void {
 		this.tree.layout(dimension.height, dimension.width);
+	}
+
+	private refreshPanel(target?: Task | Step): void {
+		if (this.isVisible()) {
+			if (target) {
+				this.tree.rerender(target);
+			} else {
+				this.tree.setChildren(null, createModelIterator(this.taskService.tasks));
+			}
+
+			const { total, filtered } = this.getFilterStats();
+			dom.toggleClass(this.treeContainer, 'hidden', total === 0 || filtered === 0);
+			this.renderMessage();
+			// this._onDidFilter.fire();
+		}
 	}
 
 	private createTree(parent: HTMLElement): void {
@@ -71,6 +100,12 @@ export class TasksPanel extends Panel {
 		) as any as WorkbenchObjectTree<TreeElement>;
 	}
 
+	private createListeners(): void {
+		this.taskService.onNewTask(e => {
+			this.refreshPanel();
+		});
+	}
+
 	private createMessageBox(parent: HTMLElement): void {
 		this.messageBoxContainer = dom.append(parent, dom.$('.message-box-container'));
 		this.messageBoxContainer.setAttribute('aria-labelledby', 'tasks-panel-arialabel');
@@ -84,7 +119,7 @@ export class TasksPanel extends Panel {
 
 	private render(): void {
 		// this.cachedFilterStats = undefined;
-		// this.tree.setChildren(null, createModelIterator(this.markersWorkbenchService.markersModel));
+		this.tree.setChildren(null, createModelIterator(this.taskService.tasks));
 		const { total, filtered } = this.getFilterStats();
 		dom.toggleClass(this.treeContainer, 'hidden', total === 0 || filtered === 0);
 		this.renderMessage();

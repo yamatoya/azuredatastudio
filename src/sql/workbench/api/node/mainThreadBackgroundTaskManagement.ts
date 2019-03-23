@@ -10,9 +10,11 @@ import { MainThreadBackgroundTaskManagementShape, SqlMainContext, ExtHostBackgro
 import { extHostNamedCustomer } from 'vs/workbench/api/common/extHostCustomers';
 import { IExtHostContext } from 'vs/workbench/api/common/extHost.protocol';
 import { Disposable } from 'vs/base/common/lifecycle';
+import { Task, Step } from 'sql/workbench/parts/tasks/common/tasksModel';
 
 
 import * as azdata from 'azdata';
+import { ITaskService2 } from 'sql/platform/tasks/common/tasksService2';
 
 export enum TaskStatus {
 	NotStarted = 0,
@@ -30,7 +32,8 @@ export class MainThreadBackgroundTaskManagement extends Disposable implements Ma
 
 	constructor(
 		context: IExtHostContext,
-		@ITaskService private _taskService: ITaskService
+		@ITaskService private _taskService: ITaskService,
+		@ITaskService2 private _taskService2: ITaskService2
 	) {
 		super();
 		this._proxy = context.getProxy(SqlExtHostContext.ExtHostBackgroundTaskManagement);
@@ -48,5 +51,10 @@ export class MainThreadBackgroundTaskManagement extends Disposable implements Ma
 
 	$updateTask(taskProgressInfo: azdata.TaskProgressInfo): void {
 		this._taskService.updateTask(taskProgressInfo);
+	}
+
+	$registerNewTask(id: string, name: string, description?: string): void {
+		let task = new Task(id, name, description);
+		this._taskService2.registerTask(task);
 	}
 }

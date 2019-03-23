@@ -53,6 +53,35 @@ export class ExtBackgroundOperation implements azdata.BackgroundOperation {
 	}
 }
 
+class ExtHostBackgroundTask implements azdata.BackgroundTask {
+	readonly id: string;
+	private _name: string;
+	private _description: string | undefined;
+
+	constructor(private proxy: MainThreadBackgroundTaskManagementShape, name: string, description?: string) {
+		this.id = generateUuid();
+		this._name = name;
+		this._description = description;
+		this.proxy.$registerNewTask(this.id, this.name, this.description);
+	}
+
+	public get name(): string {
+		return this._name;
+	}
+
+	public set name(val: string) {
+		this._name = val;
+	}
+
+	public get description(): string {
+		return this._description;
+	}
+
+	public set description(val: string) {
+		this._description = val;
+	}
+}
+
 export class ExtHostBackgroundTaskManagement implements ExtHostBackgroundTaskManagementShape {
 	private readonly _proxy: MainThreadBackgroundTaskManagementShape;
 	private readonly _handlers = new Map<string, azdata.BackgroundOperationInfo>();
@@ -109,5 +138,9 @@ export class ExtHostBackgroundTaskManagement implements ExtHostBackgroundTaskMan
 		if (this._handlers.has(operationId)) {
 			this._handlers.delete(operationId);
 		}
+	}
+
+	$registerNewTask(name: string, description?: string): azdata.BackgroundTask {
+		return new ExtHostBackgroundTask(this._proxy, name, description);
 	}
 }

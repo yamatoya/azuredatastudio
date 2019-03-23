@@ -3760,12 +3760,23 @@ declare module 'azdata' {
 		operation: (operation: BackgroundOperation) => void;
 	}
 
+	export interface BackgroundTask {
+		readonly id: string;
+		name: string;
+		description: string;
+	}
+
 	namespace tasks {
 		/**
 		* Starts an operation to run in the background
 		* @param operationInfo Operation Information
 		*/
 		export function startBackgroundOperation(operationInfo: BackgroundOperationInfo): void;
+
+		/**
+		 *
+		 */
+		export function newBackgroundTask(name: string, description?: string): BackgroundTask;
 
 	}
 

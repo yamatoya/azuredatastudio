@@ -413,6 +413,9 @@ export function createApiFactory(
 				},
 				startBackgroundOperation(operationInfo: azdata.BackgroundOperationInfo): void {
 					extHostBackgroundTaskManagement.$registerTask(operationInfo);
+				},
+				newBackgroundTask(name: string, description?: string): azdata.BackgroundTask {
+					return extHostBackgroundTaskManagement.$registerNewTask(name, description);
 				}
 			};
 
