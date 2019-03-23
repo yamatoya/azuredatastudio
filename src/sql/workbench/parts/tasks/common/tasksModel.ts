@@ -6,18 +6,26 @@
 import { generateUuid } from 'vs/base/common/uuid';
 
 export class Task {
-	private _id: string;
-	private _name: string;
-	private _description: string;
+	readonly id: string;
+	name: string;
+	description: string;
+	steps = new Array<Step>();
 
 	constructor(name: string, description?: string, id?: string) {
-		this._id = id || generateUuid();
-		this._name = name;
-		this._description = description || '';
+		this.id = id || generateUuid();
+		this.name = name;
+		this.description = description || '';
 	}
-
 }
 
 export class Step {
+	readonly id: string;
+	name: string;
+	description: string;
 
+	constructor(name: string, description?: string, id?: string) {
+		this.id = id || generateUuid();
+		this.name = name;
+		this.description = description || '';
+	}
 }

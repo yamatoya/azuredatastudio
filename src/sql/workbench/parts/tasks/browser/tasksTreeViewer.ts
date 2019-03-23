@@ -53,21 +53,35 @@ const enum TemplateId {
 }
 
 interface IStepTemplateData {
-
+	name: HTMLElement;
+	description: HTMLElement;
 }
 
 interface ITaskTemplateData {
-
+	name: HTMLElement;
+	description: HTMLElement;
 }
 
 export class TaskRenderer implements ITreeRenderer<Task, undefined, ITaskTemplateData> {
 	templateId = TemplateId.Task;
 
 	renderTemplate(container: HTMLElement): ITaskTemplateData {
-		return {};
+		const template = <ITaskTemplateData>Object.create(null);
+
+		const nameContainer = dom.append(container, dom.$('.task-name-container'));
+		template.name = nameContainer;
+
+		const descriptionContainer = dom.append(container, dom.$('.task-description-container'));
+		template.description = descriptionContainer;
+
+		return template;
 	}
 
-	renderElement(element: ITreeNode<Task, undefined>, index: number, templateData: ITaskTemplateData): void {
+	renderElement(node: ITreeNode<Task, undefined>, index: number, templateData: ITaskTemplateData): void {
+		const task = node.element;
+
+		templateData.name.innerText = task.name;
+		templateData.description.innerText = task.description;
 	}
 
 	disposeTemplate(templateData: ITaskTemplateData): void {
@@ -78,10 +92,22 @@ export class StepRenderer implements ITreeRenderer<Step, undefined, IStepTemplat
 	templateId = TemplateId.Step;
 
 	renderTemplate(container: HTMLElement): IStepTemplateData {
-		return {};
+		const template = <IStepTemplateData>Object.create(null);
+
+		const nameContainer = dom.append(container, dom.$('.step-name-container'));
+		template.name = nameContainer;
+
+		const descriptionContainer = dom.append(container, dom.$('.step-description-container'));
+		template.description = descriptionContainer;
+
+		return template;
 	}
 
-	renderElement(element: ITreeNode<Step, undefined>, index: number, templateData: IStepTemplateData): void {
+	renderElement(node: ITreeNode<Step, undefined>, index: number, templateData: IStepTemplateData): void {
+		const step = node.element;
+
+		templateData.name.innerText = step.name;
+		templateData.description.innerText = step.description;
 	}
 
 	disposeTemplate(templateData: IStepTemplateData): void {
@@ -149,7 +175,11 @@ export class VirtualDelegate implements IListVirtualDelegate<TreeElement> {
 	}
 
 	getTemplateId(element: TreeElement): string {
-		return 'id';
+		if (element instanceof Task) {
+			return TemplateId.Task;
+		} else {
+			return TemplateId.Step;
+		}
 		/*
 		if (element instanceof ResourceMarkers) {
 			return TemplateId.ResourceMarkers;

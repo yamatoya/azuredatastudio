@@ -49,6 +49,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<MssqlE
 		return;
 	}
 
+	let task = azdata.tasks.newBackgroundTask('name', 'target');
+
+	let index = 0;
+	let interval = setInterval(() => {
+		if (++index > 5) {
+			clearInterval(interval);
+			return;
+		}
+		task.createStep('Step ' + index, 'description of step ' + index);
+	}, 5000);
+
 	let config: IConfig = JSON.parse(JSON.stringify(baseConfig));
 	config.installDirectory = path.join(__dirname, config.installDirectory);
 	config.proxy = vscode.workspace.getConfiguration('http').get('proxy');

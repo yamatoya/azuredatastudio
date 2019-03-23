@@ -54,7 +54,10 @@ export class MainThreadBackgroundTaskManagement extends Disposable implements Ma
 	}
 
 	$registerNewTask(id: string, name: string, description?: string): void {
-		let task = new Task(id, name, description);
-		this._taskService2.registerTask(task);
+		this._taskService2.registerTask(new Task(name, description, id));
+	}
+
+	$registerTaskStep(parentId: string, stepId: string, name: string, description?: string): void {
+		this._taskService2.addStep(parentId, new Step(name, description, stepId));
 	}
 }

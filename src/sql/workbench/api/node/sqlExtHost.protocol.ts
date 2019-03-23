@@ -700,6 +700,7 @@ export interface MainThreadBackgroundTaskManagementShape extends IDisposable {
 	$registerTask(taskInfo: azdata.TaskInfo): void;
 	$updateTask(taskProgressInfo: azdata.TaskProgressInfo): void;
 	$registerNewTask(id: string, name: string, description?: string): void;
+	$registerTaskStep(parentId: string, stepId: string, name: string, description?: string): void;
 }
 
 export interface MainThreadModelViewShape extends IDisposable {

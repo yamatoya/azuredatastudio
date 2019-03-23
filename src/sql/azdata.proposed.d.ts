@@ -3764,6 +3764,13 @@ declare module 'azdata' {
 		readonly id: string;
 		name: string;
 		description: string;
+		createStep(name: string, description?: string): BackgroundTaskStep;
+	}
+
+	export interface BackgroundTaskStep {
+		readonly id: string;
+		name: string;
+		description: string;
 	}
 
 	namespace tasks {
@@ -3777,7 +3784,6 @@ declare module 'azdata' {
 		 *
 		 */
 		export function newBackgroundTask(name: string, description?: string): BackgroundTask;
-
 	}
 
 	export interface ConnectionResult {

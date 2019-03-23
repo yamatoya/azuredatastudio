@@ -53,6 +53,34 @@ export class ExtBackgroundOperation implements azdata.BackgroundOperation {
 	}
 }
 
+class ExtHostBackgroundTaskStep implements azdata.BackgroundTaskStep {
+	readonly id: string;
+	private _name: string;
+	private _description: string | undefined;
+
+	constructor(private proxy: MainThreadBackgroundTaskManagementShape, name: string, description?: string) {
+		this.id = generateUuid();
+		this._name = name;
+		this._description = description;
+	}
+
+	public get name(): string {
+		return this._name;
+	}
+
+	public set name(val: string) {
+		this._name = val;
+	}
+
+	public get description(): string {
+		return this._description;
+	}
+
+	public set description(val: string) {
+		this._description = val;
+	}
+}
+
 class ExtHostBackgroundTask implements azdata.BackgroundTask {
 	readonly id: string;
 	private _name: string;
@@ -63,6 +91,12 @@ class ExtHostBackgroundTask implements azdata.BackgroundTask {
 		this._name = name;
 		this._description = description;
 		this.proxy.$registerNewTask(this.id, this.name, this.description);
+	}
+
+	public createStep(name: string, description?: string): ExtHostBackgroundTaskStep {
+		const step = new ExtHostBackgroundTaskStep(this.proxy, name, description);
+		this.proxy.$registerTaskStep(this.id, step.id, step.name, step.description);
+		return step;
 	}
 
 	public get name(): string {

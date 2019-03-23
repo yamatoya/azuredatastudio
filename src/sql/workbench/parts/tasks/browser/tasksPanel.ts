@@ -21,12 +21,19 @@ import { ITaskService2 } from 'sql/platform/tasks/common/tasksService2';
 import { Iterator } from 'vs/base/common/iterator';
 import { ITreeElement } from 'vs/base/browser/ui/tree/tree';
 import { Task, Step } from 'sql/workbench/parts/tasks/common/tasksModel';
+import { Event } from 'vs/base/common/event';
 
 function createModelIterator(model: Array<Task>): Iterator<ITreeElement<TreeElement>> {
 	const tasksIt = Iterator.fromArray(model);
 
 	return Iterator.map(tasksIt, m => {
-		return { element: m };
+		const stepsIt = Iterator.fromArray(m.steps);
+
+		const children = Iterator.map(stepsIt, m => {
+			return { element: m };
+		});
+
+		return { element: m, children };
 	});
 }
 
@@ -37,6 +44,8 @@ export class TasksPanel extends Panel {
 	private treeContainer: HTMLElement;
 	private messageBoxContainer: HTMLElement;
 	private ariaLabelElement: HTMLElement;
+
+	private cachedFilterStats: { total: number; filtered: number; } | undefined = undefined;
 
 	constructor(
 		@ITelemetryService telemetryService: ITelemetryService,
@@ -69,6 +78,8 @@ export class TasksPanel extends Panel {
 
 	private refreshPanel(target?: Task | Step): void {
 		if (this.isVisible()) {
+			this.cachedFilterStats = undefined;
+
 			if (target) {
 				this.tree.rerender(target);
 			} else {
@@ -101,9 +112,7 @@ export class TasksPanel extends Panel {
 	}
 
 	private createListeners(): void {
-		this.taskService.onNewTask(e => {
-			this.refreshPanel();
-		});
+		this._register(Event.any(this.taskService.onNewTask, this.taskService.onNewStep)(e => this.refreshPanel()));
 	}
 
 	private createMessageBox(parent: HTMLElement): void {
@@ -118,7 +127,7 @@ export class TasksPanel extends Panel {
 	}
 
 	private render(): void {
-		// this.cachedFilterStats = undefined;
+		this.cachedFilterStats = undefined;
 		this.tree.setChildren(null, createModelIterator(this.taskService.tasks));
 		const { total, filtered } = this.getFilterStats();
 		dom.toggleClass(this.treeContainer, 'hidden', total === 0 || filtered === 0);
@@ -193,10 +202,30 @@ export class TasksPanel extends Panel {
 	}
 
 	getFilterStats(): { total: number; filtered: number; } {
-		// if (!this.cachedFilterStats) {
-		// 	this.cachedFilterStats = this.computeFilterStats();
-		// }
+		if (!this.cachedFilterStats) {
+			this.cachedFilterStats = this.computeFilterStats();
+		}
 
-		return { total: 0, filtered: 0 };
+		return this.cachedFilterStats;
+	}
+
+	private computeFilterStats(): { total: number; filtered: number; } {
+		const root = this.tree.getNode();
+		let total = 0;
+		let filtered = 0;
+
+		for (const taskNode of root.children) {
+			total++;
+			filtered++;
+			for (const stepNode of taskNode.children) {
+				total++;
+
+				if (taskNode.visible && stepNode.visible) {
+					filtered++;
+				}
+			}
+		}
+
+		return { total, filtered };
 	}
 }
