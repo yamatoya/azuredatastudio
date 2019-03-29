@@ -168,8 +168,6 @@ export class JobHistoryComponent extends JobManagementView implements OnInit {
 					self._showPreviousRuns = true;
 					self._noJobsAvailable = false;
 					self.buildHistoryTree(self, result.histories);
-					this._actionBar.dispose();
-					this.initActionBar();
 					if (self._agentViewComponent.showHistory) {
 						self._cd.detectChanges();
 					}
@@ -180,11 +178,14 @@ export class JobHistoryComponent extends JobManagementView implements OnInit {
 				}
 			} else {
 				self._showPreviousRuns = false;
+				self._noJobsAvailable = true;
 				self._showSteps = false;
 				if (self._agentViewComponent.showHistory) {
 					self._cd.detectChanges();
 				}
 			}
+			this._actionBar.dispose();
+			this.initActionBar();
 		});
 	}
 
@@ -348,7 +349,7 @@ export class JobHistoryComponent extends JobManagementView implements OnInit {
 		let refreshAction = this.instantiationService.createInstance(JobsRefreshAction);
 		let taskbar = <HTMLElement>this.actionBarContainer.nativeElement;
 		this._actionBar = new Taskbar(taskbar, this.contextMenuService);
-		let canEdit = this._jobCacheObject.getJobSteps(this._agentJobInfo.jobId) ? true : false;
+		let canEdit = this._jobCacheObject.jobHistories[this._agentJobInfo.jobId] ? true : this._noJobsAvailable;
 		this._actionBar.context = { targetObject: { job: this._agentJobInfo, canEdit: canEdit  }, ownerUri: this.ownerUri, component: this };
 		editJobAction.enabled = canEdit;
 		this._actionBar.setContent([

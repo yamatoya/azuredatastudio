@@ -96,7 +96,7 @@ export class RunJobAction extends Action {
 	}
 
 	public run(context: IJobActionInfo): Promise<boolean> {
-		let jobName = context.targetObject.name;
+		let jobName = context.targetObject.job.name;
 		let ownerUri = context.ownerUri;
 		let refreshAction = this.instantationService.createInstance(JobsRefreshAction);
 		this.telemetryService.publicLog(TelemetryKeys.RunAgentJob);
@@ -131,7 +131,7 @@ export class StopJobAction extends Action {
 	}
 
 	public run(context: IJobActionInfo): Promise<boolean> {
-		let jobName = context.targetObject.name;
+		let jobName = context.targetObject.job.name;
 		let ownerUri = context.ownerUri;
 		let refreshAction = this.instantationService.createInstance(JobsRefreshAction);
 		this.telemetryService.publicLog(TelemetryKeys.StopAgentJob);
