@@ -190,6 +190,13 @@
 					"group": "1notebook@1"
 				}
 			],
+			"dataExplorer/context": [
+				{
+					"command": "notebook.command.new",
+					"when": "connectionProvider == MSSQL && nodeType == Server",
+					"group": "1root@1"
+				}
+			],
 			"notebook/toolbar": [
 				{
 					"command": "jupyter.cmd.installPackages",
