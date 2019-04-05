@@ -21,6 +21,7 @@ export class NodeContextKey extends Disposable implements IContextKey<INodeConte
 	static ViewId = new RawContextKey<string>('view', undefined);
 	static ViewItem = new RawContextKey<string>('viewItem', undefined);
 	static Node = new RawContextKey<INodeContextValue>('node', undefined);
+	static NodeType = new RawContextKey<string>('nodeType', undefined);
 
 	private readonly _connectionContextKey: ConnectionContextKey;
 	private readonly _connectableKey: IContextKey<boolean>;
@@ -28,6 +29,7 @@ export class NodeContextKey extends Disposable implements IContextKey<INodeConte
 	private readonly _viewIdKey: IContextKey<string>;
 	private readonly _viewItemKey: IContextKey<string>;
 	private readonly _nodeContextKey: IContextKey<INodeContextValue>;
+	private readonly _nodeLabelKey: IContextKey<string>;
 
 	constructor(
 		@IContextKeyService contextKeyService: IContextKeyService,
@@ -41,6 +43,7 @@ export class NodeContextKey extends Disposable implements IContextKey<INodeConte
 		this._viewItemKey = NodeContextKey.ViewItem.bindTo(contextKeyService);
 		this._nodeContextKey = NodeContextKey.Node.bindTo(contextKeyService);
 		this._connectionContextKey = new ConnectionContextKey(contextKeyService);
+		this._nodeLabelKey = NodeContextKey.NodeType.bindTo(contextKeyService);
 	}
 
 	set(value: INodeContextValue) {
@@ -55,8 +58,10 @@ export class NodeContextKey extends Disposable implements IContextKey<INodeConte
 		}
 		if (value.node) {
 			this._viewItemKey.set(value.node.contextValue);
+			this._nodeLabelKey.set(value.node.nodeType);
 		} else {
 			this._viewItemKey.reset();
+			this._nodeLabelKey.reset();
 		}
 		this._nodeContextKey.set(value);
 		this._viewIdKey.set(value.viewId);
@@ -69,6 +74,7 @@ export class NodeContextKey extends Disposable implements IContextKey<INodeConte
 		this._connectedKey.reset();
 		this._connectionContextKey.reset();
 		this._nodeContextKey.reset();
+		this._nodeLabelKey.reset();
 	}
 
 	get(): INodeContextValue | undefined {

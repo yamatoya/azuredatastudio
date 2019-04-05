@@ -143,7 +143,8 @@ export class OEShimService extends Disposable implements IOEShimService {
 			providerHandle: parentNode.childProvider,
 			payload: node.payload || parentNode.payload,
 			contextValue: node.nodeTypeId,
-			sqlIcon: icon
+			sqlIcon: icon,
+			nodeType: node.nodeTypeId
 		};
 		this.nodeHandleMap.set(generateNodeMapKey(viewId, newTreeItem), nodePath);
 		return newTreeItem;

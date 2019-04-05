@@ -193,7 +193,7 @@
 			"dataExplorer/context": [
 				{
 					"command": "notebook.command.new",
-					"when": "connectionProvider == MSSQL && nodeType == Server",
+					"when": "connectionProvider == MSSQL && nodeType == server",
 					"group": "1root@1"
 				}
 			],

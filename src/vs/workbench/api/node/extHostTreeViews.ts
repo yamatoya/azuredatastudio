@@ -464,7 +464,7 @@ export class ExtHostTreeView<T> extends Disposable {
 	}
 
 	// {{SQL CARBON EDIT}}
-	protected createTreeItem(element: T, extensionTreeItem: azdata.TreeItem, parent: TreeNode | Root): ITreeItem {
+	protected createTreeItem(element: T, extensionTreeItem: azdata.TreeItem, parent: TreeNode | Root): sqlITreeItem {
 
 		const handle = this.createHandle(element, extensionTreeItem, parent);
 		const icon = this.getLightIconPath(extensionTreeItem);
@@ -483,7 +483,8 @@ export class ExtHostTreeView<T> extends Disposable {
 			collapsibleState: isUndefinedOrNull(extensionTreeItem.collapsibleState) ? TreeItemCollapsibleState.None : extensionTreeItem.collapsibleState,
 			// {{SQL CARBON EDIT}}
 			payload: extensionTreeItem.payload,
-			childProvider: extensionTreeItem.childProvider
+			childProvider: extensionTreeItem.childProvider,
+			nodeType: extensionTreeItem.nodeType
 		};
 
 		return item;
