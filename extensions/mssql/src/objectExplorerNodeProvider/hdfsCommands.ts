@@ -305,11 +305,13 @@ export class PreviewFileCommand extends ProgressCommand {
 				await this.executeWithProgress(
 					async (cancelToken: vscode.CancellationTokenSource) => {
 						let contents = await fileNode.getFileContentsAsString(PreviewFileCommand.DefaultMaxSize);
-						let doc = await this.openTextDocument(fspath.basename(fileNode.hdfsPath));
-						let editor = await this.apiWrapper.showTextDocument(doc, vscode.ViewColumn.Active, false);
-						await editor.edit(edit => {
-							edit.insert(new vscode.Position(0, 0), contents);
-						});
+						let language = this.getLanguage(fileNode.hdfsPath);
+						let doc = await this.apiWrapper.openTextDocument({ language:language, content: contents });
+						if (language === 'notebook') {
+							await this.showNotebookDocument(doc.uri);
+						} else {
+							await this.apiWrapper.showTextDocument(doc, vscode.ViewColumn.Active, false);
+						}
 					},
 					localize('previewing', 'Generating preview'),
 					false);
@@ -320,6 +322,28 @@ export class PreviewFileCommand extends ProgressCommand {
 			this.apiWrapper.showErrorMessage(
 				localize('previewError', 'Error on previewing file: {0}', utils.getErrorMessage(err, true)));
 		}
+	}
+
+	private getLanguage(filePath: string) {
+		let ext = fspath.extname(filePath);
+		if (ext && ext.length > 0) {
+			if (ext === '.ipynb') { return 'notebook'; }
+			if (ext === '.sql') { return 'sql'; }
+		}
+		return 'planetext';
+	}
+
+	private async showNotebookDocument(uri: vscode.Uri): Promise<azdata.nb.NotebookEditor> {
+		return azdata.nb.showNotebookDocument(uri, {
+			connectionProfile: undefined,
+			providerId: 'jupyter',
+			preview: true,
+			defaultKernel: {
+				name: 'pyspark3kernel',
+				display_name: 'PySpark3',
+				language: 'python'
+			}
+		});
 	}
 
 	private async openTextDocument(fileName: string): Promise<vscode.TextDocument> {
